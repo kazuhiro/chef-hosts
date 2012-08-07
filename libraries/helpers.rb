@@ -25,8 +25,8 @@ module Opscode
       # Inspects the node to find all the assigned ip addresses 
       def interface_addresses
         ip_addresses = [] 
-        if node.has_key?("network") and node["network"].has_key?("interfaces")
-          node["network"]["interfaces"].each do |iface|
+        if construct_attributes.has_key?("network") and construct_attributes["network"].has_key?("interfaces")
+          construct_attributes["network"]["interfaces"].each do |iface|
             # iface is [<name>, {"addresses"=>{}, ... }]
             ip_addresses.concat begin
               ip_addresses.concat iface[1]["addresses"].keys
@@ -53,17 +53,18 @@ module Opscode
         private_ip = find_private_ip
 
         internal_ip = begin
-          if node.attribute?("cloud") && node.cloud.attribute?("local_ipv4")
-            Chef::Log.info "node.cloud.local_ipv4: #{node.cloud.local_ipv4}"
-            Chef::Log.info "Using Cloud IP: #{node.cloud.local_ipv4}"
-            node.cloud.local_ipv4
+          Chef::Log.info "Node hostname: #{construct_attributes.hostname}"
+          if construct_attributes.attribute?("cloud") && construct_attributes.cloud.attribute?("local_ipv4")
+            Chef::Log.info "construct_attributes.cloud.local_ipv4: #{construct_attributes.cloud.local_ipv4}"
+            Chef::Log.info "Using Cloud IP: #{construct_attributes.cloud.local_ipv4}"
+            construct_attributes.cloud.local_ipv4
           elsif private_ip
             Chef::Log.info "Using Private IP: #{private_ip}"
             private_ip
           else
             # Anything else would yield a public IP, e.g.
-            #   node.cloud.public_ipv4
-            #   node.ipaddress
+            #   construct_attributes.cloud.public_ipv4
+            #   construct_attributes.ipaddress
             # Therefore, just return nil and handle this case elsewhere.
             nil
           end

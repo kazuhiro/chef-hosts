@@ -24,14 +24,15 @@
 #   default[:host_aliases]
 
 # Include helper "internal_ip" to query internal IP addresses
-::Chef::Recipe.send(:include, Opscode::HostAliases::Helpers)
+::Chef::Node.send(:include, Opscode::HostAliases::Helpers)
 
 host_entries = []
 
 node[:host_aliases].each do |node_name|
   search(:node, "name:#{node_name}") do |node|
+    Chef::Log.info "#{node.cloud.local_ipv4} #{node.hostname}"
     ip = begin
-      addr = internal_ip
+      addr = node.internal_ip
       if addr.nil?
         node.ipaddress
       else
