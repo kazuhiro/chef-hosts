@@ -31,6 +31,9 @@ host_entries = []
 node[:host_aliases].each do |node_name|
   search(:node, "name:#{node_name}") do |node|
     Chef::Log.info "#{node.cloud.local_ipv4} #{node.hostname}"
+
+    node = self.node if self.node.name == node.name
+
     ip = begin
       addr = node.internal_ip
       if addr.nil?
